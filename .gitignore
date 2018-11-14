@@ -33,3 +33,5 @@ gen
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
+/.java-version
+/gradle/
