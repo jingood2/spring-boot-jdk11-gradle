@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'org.springframework.boot' version '2.1.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+    id 'com.palantir.docker' version '0.20.1'
+    id 'com.palantir.docker-run' version '0.20.1'
+    id 'com.palantir.docker-compose' version '0.20.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+group 'com.ebusato'
+version '1.0-SNAPSHOT'
+
+targetCompatibility = 1.11
+sourceCompatibility = 1.11
+
+task unpack(type: Copy) {
+    dependsOn bootJar
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+
+bootJar {
+    baseName = 'spring-boot-jdk11-gradle'
+    version =  '1.0-SNAPSHOT'
+}
+
+docker {
+    name "${project.group}/${bootJar.baseName}"
+    copySpec.from(tasks.unpack.outputs).into("dependency")
+    buildArgs(['DEPENDENCY': "dependency"])
+}
+
+dockerRun {
+    name 'spring-boot-jdk11-gradle'
+    image "${project.group}/${bootJar.baseName}"
+    ports '8080:8080'
+    daemonize false
+}
+
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    testCompile group: 'junit', name: 'junit'
+}
