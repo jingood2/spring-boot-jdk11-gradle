@@ -1,7 +1,5 @@
-FROM openjdk:11.0.1-jdk-slim
-VOLUME /tmp
-ARG DEPENDENCY=target/dependency
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.ebusato.spring.boot.jdk11.main.Main"]
+FROM adoptopenjdk/openjdk11
+ARG JAR_FILE_PATH=build/libs/*.jar
+COPY ${JAR_FILE_PATH} app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
